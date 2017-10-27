@@ -23,7 +23,11 @@ require 'rspec'
     
     # Method
     def another_reject
-
+      new_array = []
+      self.length.times do |i|
+        new_array << self[i] if !yield(self[i])
+      end
+      new_array
     end
 
     # another_find
@@ -34,7 +38,9 @@ require 'rspec'
     
     # Method
     def another_find
-
+      self.length.times do |i|
+        return self[i] if yield(self[i])
+      end
     end
 
     # another_map
@@ -45,15 +51,34 @@ require 'rspec'
     
     # Method
     def another_map
+      new_array = []
+      self.length.times do |i|
+        new_array << yield(self[i])
+      end
+      new_array
     end
 
     def another_select
+      new_array = []
+      self.length.times do |i|
+        new_array << self[i] if yield(self[i])
+      end
+      new_array
     end
 
-    def another_reduce #Bonus
+    def another_reduce(initializer) #Bonus
+      self.length.times do |i|
+        initializer = yield(initializer, self[i])
+      end
+      initializer
     end
 
     def another_all? #Bonus
+      truf = true
+      self.length.times do |i|
+        (truf = false; break) if !yield(self[i])
+      end
+      truf
     end
   end
 
@@ -105,14 +130,14 @@ require 'rspec'
     end
   end
 
-  pending '#another_reduce' do
+  describe '#another_reduce' do
     it 'should reduce an array using block' do
       sum = sample_array.another_reduce(0) { |total, element| total + element }
       expect(sum).to eq(15)
     end
   end
 
-  pending '#another_all?' do
+  describe '#another_all?' do
     it 'should return true if block is true for all elements' do
       expect(sample_array.another_all? {|element| element.is_a? Fixnum}).to be(true)
       expect(sample_array.another_all? {|element| element.is_a? String}).to be(false)
